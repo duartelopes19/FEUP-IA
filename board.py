@@ -2,12 +2,38 @@ class Board:
     def __init__(self):
         self.size = 5
         self.grid = [
-            'B','R','PR','B','R',
-            'Y','M','Y','M','Y',
-            'R','B','R','B','PY',
-            'B','M','Y','M','R',
-            'Y','R','PB','B','Y'
+            ['B','R','PR','B','R'],
+            ['Y','M','Y','M','Y'],
+            ['R','B','R','B','PY'],
+            ['B','M','Y','M','R'],
+            ['Y','R','PB','B','Y'],
         ]
+
+
+    def drawBoard(self):
+        print('-' * (self.size * 4 + 1))
+        for row in self.grid:
+            print('|', end='')
+            for cell in row:
+                if cell == 'B':
+                    print(' B ', end='')
+                if cell=='R':
+                    print(' R ', end='')
+                if cell=='PR':
+                    print(' PR', end='')
+                if cell=='Y':
+                    print(' Y ', end='')
+                if cell=='M':
+                    print(' M ', end='')
+                if cell=='PY':
+                    print(' PY', end='')
+                if cell=='PB':
+                    print(' PB', end='')
+                print('|', end='')
+            print()
+            print('-' * (self.size * 4 + 1))
+
+
 
     def is_valid_position(self, position):
         x, y = position
@@ -42,3 +68,6 @@ class Board:
                     result += "B"
             result += "\n"
         return result
+    
+board = Board()
+board.drawBoard()
