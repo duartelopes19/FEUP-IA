@@ -2,6 +2,7 @@ class Player:
     def __init__(self, number):
         self.number = number
         self.ghosts = []
+        self.ghostsReleased = []
 
     def add_ghost(self, ghost):
         self.ghosts.append(ghost)

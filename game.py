@@ -3,6 +3,17 @@ from ghost import *
 from position import *
 from board import *
 
+
+
+size = input("board size?")
+ROWS = size
+COLS = size 
+GHOST_TYPE= ['first','second']
+GHOST_COLOR = ['Red', 'Blue', 'Yellow']
+
+ACTIONS = ['Move', 'Fight', 'Release']
+
+
 class Game:
     def __init__(self):
         self.dungeon = []
@@ -32,3 +43,4 @@ class Game:
         
     def is_game_over(self):
         # TODO: Implement the check for game over
+
