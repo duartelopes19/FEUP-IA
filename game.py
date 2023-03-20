@@ -6,6 +6,7 @@ from board import *
 
 
 size = input("board size?")
+board = Board(size)
 ROWS = size
 COLS = size 
 GHOST_TYPE= ['first','second']
@@ -34,7 +35,9 @@ class Game:
             player.add_ghost(Ghost(yellow,symbol))
             player.add_ghost(Ghost(blue,symbol))
 
+    
         
+"""         
     def is_valid_move(self, move):
         # TODO: Implement the check for valid moves
         
@@ -44,3 +47,4 @@ class Game:
     def is_game_over(self):
         # TODO: Implement the check for game over
 
+ """

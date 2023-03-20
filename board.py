@@ -1,5 +1,11 @@
 from position import *
 from math import *
+##from game import *
+from ghost import *
+from player import *
+import random 
+import pygame
+from pygame import *
 
 COLORS = ['Red', 'Blue', 'Yellow']
 
@@ -8,23 +14,13 @@ class Board:
 
     def __init__(self, size):
         self.size = size
-        self.grid = [[None for _ in range(size)] for _ in range(size)]
+        self.grid = [["" for _ in range(size)] for _ in range(size)]
         #self.list[4][4] = 'Dungeon'
         self.dungeon = []
         # portals -> (color, col, row, orientation)
+        self.populate()
         self.portals = {('Red',ceil(size/2),0,'up'),('Blue',size,ceil(size/2),'right'),('Yellow',ceil(size/2),size,'down')}
     
-
-        
-        
-        """ self.grid = [
-            ['B','R','PR','B','R'],
-            ['Y','M','Y','M','Y'],
-            ['R','B','R','B','PY'],
-            ['B','M','Y','M','R'],
-            ['Y','R','PB','B','Y'],
-        ]
- """
     def is_empty(self, row, col):
         return self.grid[row][col] is None
     
@@ -64,8 +60,127 @@ class Board:
         return mirror_chambers
 
 
+    def print_board(self):
+        """
+        Print the game board.
+        """
+        print('----' * self.size)
+        for row in range(self.size):
+            print(str(row+1)+' |', end='')
+            for col in range(self.size):
+                print(' ' + self.grid[row][col] + ' |', end='')
+            print('')
+            print('----' * self.size)
+        for num in range(self.size):
+            if(num==0): print('   '+str(num+1)+' | ', end='')
+            else:
+                print(str(num+1)+' | ', end='')
 
 
+    def populate(self):
+        for row in range(self.size):
+            for col in range(self.size):
+                cor = random.randint(0,2)
+                self.grid[row][col] = COLORS[cor]
+
+        # self.portals = {('Red',ceil(size/2),0,'up'),('Blue',size,ceil(size/2),'right'),('Yellow',ceil(size/2),size,'down')}
+
+        self.grid[0][floor(self.size/2)] = 'Portal Red'
+        self.grid[self.size - 1][floor(self.size/2)] = 'Portal Blue'
+        self.grid[floor(self.size/2)][self.size-1] = 'Portal Yellow'
+        
+        self.grid[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror'
+        self.grid[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
+        self.grid[floor(self.size/4)][floor(self.size/4)] = 'Mirror'
+        self.grid[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
+
+        self.positions = {}
+        for row in range(self.size):
+            for col in range(self.size):
+                value = self.grid[row][col]
+                if value in ('Portal Red', 'Portal Blue', 'Portal Yellow', 'Mirror'):
+                    self.positions[value] = (row, col)
+
+
+
+
+
+board = Board(5)
+board.print_board()
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the game window
+window_width = 640
+window_height = 640
+window = pygame.display.set_mode((window_width, window_height))
+pygame.display.set_caption("Ghost Adventure Board")
+
+# Define colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+MIRROR = (127, 127, 127)
+
+# Set up the board
+board_size = board.size
+cell_size = 64
+board_width = cell_size * board_size
+board_height = cell_size * board_size
+board_left = (window_width - board_width) / 2
+board_top = (window_height - board_height) / 2
+
+pacman_angle_rad = math.radians(60)
+window.fill(WHITE)
+# Draw the board
+for row in range(board_size):
+    for col in range(board_size):
+        cell_left = board_left + col * cell_size
+        cell_top = board_top + row * cell_size
+        cell_rect = pygame.Rect(cell_left, cell_top, cell_size, cell_size)
+        pygame.draw.rect(window, WHITE, cell_rect, 2)
+
+        cell_contents = board.grid[row][col]
+        if cell_contents == "Portal Red":
+            pygame.draw.circle(window, RED, cell_rect.center,cell_size//2)
+            pygame.draw.circle(window, BLACK, cell_rect.center, cell_size // 2, 1)
+            pygame.draw.arc(window, (0, 0, 0), pygame.Rect(cell_rect.center, pygame.math.degrees(pacman_angle_rad/2), math.degrees(-pacman_angle_rad/2), 0))
+            pygame.draw.rect(window, BLACK, cell_rect, 1)
+        elif cell_contents == "Portal Blue":
+            pygame.draw.arc(window, RED, cell_rect, 10, 20, 1)
+            pygame.draw.rect(window, BLACK, cell_rect, 1)
+        elif cell_contents == "Portal Yellow":
+            pygame.draw.rect(window, YELLOW, cell_rect)
+            pygame.draw.rect(window, BLACK, cell_rect, 1)
+        elif cell_contents == "Mirror":
+            pygame.draw.rect(window, MIRROR, cell_rect)
+            pygame.draw.rect(window, BLACK, cell_rect, 1)
+        elif cell_contents == "Blue":
+            pygame.draw.rect(window, BLUE, cell_rect)
+            pygame.draw.rect(window, BLACK, cell_rect, 1)
+        elif cell_contents == "Red":
+            pygame.draw.rect(window, RED, cell_rect)
+            pygame.draw.rect(window, BLACK, cell_rect, 1)
+        elif cell_contents == "Yellow":
+            pygame.draw.rect(window, YELLOW, cell_rect)
+            pygame.draw.rect(window, BLACK, cell_rect, 1)
+        else:
+            pygame.draw.rect(window, GREEN, cell_rect)
+            pygame.draw.rect(window, BLACK, cell_rect, 1)
+
+# Update the display
+pygame.display.update()
+
+# Main game loop
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
 
 
 
