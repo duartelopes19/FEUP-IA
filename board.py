@@ -15,15 +15,33 @@ class Board:
     def __init__(self, size):
         self.size = size
         self.grid = [["" for _ in range(size)] for _ in range(size)]
+        self.ghosts = [["" for _ in range(size)] for _ in range(size)]
+        self.populate()
+        #self.players = [Player(1), Player(2)]
+        #self.give_ghosts()
+
         #self.list[4][4] = 'Dungeon'
         self.dungeon = []
+
         # portals -> (color, col, row, orientation)
-        self.populate()
         self.portals = {('Red',ceil(size/2),0,'up'),('Blue',size,ceil(size/2),'right'),('Yellow',ceil(size/2),size,'down')}
     
     def is_empty(self, row, col):
         return self.grid[row][col] is None
+    '''
+    def give_ghosts(self):
+        for player in self.players:
+            for i in range(0, 3):
+                player.add_ghost(Ghost(COLORS[i]))
     
+    def place_ghosts2(self):
+        for row in range(self.size):
+            for col in range(self.size):
+
+
+    '''
+
+
     def add_ghost(self, ghost, row, col):
         ghost.row = row
         ghost.col = col
@@ -68,20 +86,28 @@ class Board:
         for row in range(self.size):
             print(str(row+1)+' |', end='')
             for col in range(self.size):
+                print(' ' + str(self.ghosts[row][col]) + ' |', end='')
+            print('')
+            print('-----' * self.size*2)
+        for num in range(self.size):
+            if(num==0): print('   '+str(num+1)+' | ', end='')
+            else:
+                print(str(num+1)+' | ', end='')
+
+        """ print('----' * self.size)
+        for row in range(self.size):
+            print(str(row+1)+' |', end='')
+            for col in range(self.size):
                 print(' ' + self.grid[row][col] + ' |', end='')
             print('')
             print('----' * self.size)
         for num in range(self.size):
             if(num==0): print('   '+str(num+1)+' | ', end='')
             else:
-                print(str(num+1)+' | ', end='')
+                print(str(num+1)+' | ', end='') """
 
 
     def populate(self):
-        for row in range(self.size):
-            for col in range(self.size):
-                cor = random.randint(0,2)
-                self.grid[row][col] = COLORS[cor]
 
         # self.portals = {('Red',ceil(size/2),0,'up'),('Blue',size,ceil(size/2),'right'),('Yellow',ceil(size/2),size,'down')}
 
@@ -94,16 +120,45 @@ class Board:
         self.grid[floor(self.size/4)][floor(self.size/4)] = 'Mirror'
         self.grid[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
 
+        self.ghosts[0][floor(self.size/2)] = 'Portal Red'
+        self.ghosts[self.size - 1][floor(self.size/2)] = 'Portal Blue'
+        self.ghosts[floor(self.size/2)][self.size-1] = 'Portal Yellow'
+        
+        self.ghosts[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror'
+        self.ghosts[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
+        self.ghosts[floor(self.size/4)][floor(self.size/4)] = 'Mirror'
+        self.ghosts[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
+
         self.positions = {}
         for row in range(self.size):
             for col in range(self.size):
                 value = self.grid[row][col]
                 if value in ('Portal Red', 'Portal Blue', 'Portal Yellow', 'Mirror'):
                     self.positions[value] = (row, col)
+    
+
+        for color in COLORS:
+            for player in (1, 2):
+                for _ in range(3):
+                    row = random.randint(0, self.size-1)
+                    col = random.randint(0, self.size-1)
+                    while (self.ghosts[row][col] != ""):
+                        row = random.randint(0, self.size-1)
+                        col = random.randint(0, self.size-1)
+                    pos = Position(row, col)
+                    self.ghosts[row][col] = Ghost(color, player, pos)
+                    self.grid[row][col]= color
+                                            
+        
 
 
-
-
+    """ def place_ghosts(self):
+        for row in range(self.size):
+            for col in range(self.size):
+                if (self.grid[row][col]!='Portal Red' and self.grid[row][col]!='Portal Blue' and self.grid[row][col]!='Portal Yellow' and self.grid[row][col]!='Mirror'):
+                    if('Red') self.ghosts[row][col] = Ghost(self.grid[row][col],random.randint(0,1),Position(row,col))
+                
+ """
 
 board = Board(5)
 board.print_board()
