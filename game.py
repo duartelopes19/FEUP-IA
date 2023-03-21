@@ -19,6 +19,19 @@ class Game:
         self.board = Board(self.size)
         self.restore_mirror = False
 
+     # Define function to check if a ghost has won
+    def check_win(self, curr_player):
+        if(curr_player.number == 1):
+            if ('Red 1'in curr_player.ghostsReleased  and 'Blue 1'  in curr_player.ghostsReleased  and 'Yellow 1' in curr_player.ghostsReleased ):
+                return True
+            else:
+                return False
+        else:
+            if ('Red 2'in curr_player.ghostsReleased  and 'Blue 2'  in curr_player.ghostsReleased  and 'Yellow 2' in curr_player.ghostsReleased ):
+                return True
+            else:
+                return False
+        
     
     def valid_moves(self, from_row, from_col, ghost):
         
@@ -72,6 +85,15 @@ while(True):
     print("\n"+str(game.curr_player))
     action = input('Enter action (move/release): ')
 
+    if(action =='release'):
+        if(len(game.curr_player.dungeon)==0):
+            print('No Ghosts In the Dungeon')
+            continue
+
+    
+
+
+
     if(action=='move'):
         from_row = int(input('Enter row of ghost to move (1-'+str(game.size)+'): ')) - 1
         from_col = int(input('Enter column of ghost to move (1-'+str(game.size)+'): ')) - 1
@@ -99,14 +121,19 @@ while(True):
             game.restore_mirror = True
             continue
         else:
-            game.board.move_ghost(from_row ,from_col,move)    
+            game.board.move_ghost(from_row ,from_col,move, game.curr_player)    
 
         for i in range(len(valid_moves)):
             print(valid_moves[i])
 
-        print("Dungeon: ", end="")
-        for i in range(len(game.board.dungeon)):
-            print(game.board.dungeon[i], end=" ")
+        print("Dungeon: ")
+        print("Player 1: ", end="")
+        for i in range(len(game.players[0].dungeon)):
+            print(game.players[0].dungeon[i], end=" ")
+        print('\n')
+        print("Player 2: ", end="")
+        for i in range(len(game.players[1].dungeon)):
+            print(game.players[1].dungeon[i], end=" ")
         print('\n')
 
         if(game.restore_mirror):
@@ -115,9 +142,13 @@ while(True):
         
         game.change_player()
 
-    else:
-        break
     
+    else:
+        continue
+    
+    if(game.check_win):
+        print("Entrou")
+        break
         
    
 

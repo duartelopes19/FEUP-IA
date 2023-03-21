@@ -1,7 +1,8 @@
-mirrors V
+mirrors [V´ mais ou menos]
 portal_rotation
 portal sucktion
-checkwin
+checkwin [V]
+release from dungeon
 pygame
 
 minimax

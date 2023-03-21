@@ -13,7 +13,6 @@ COLORS = ['Red', 'Blue', 'Yellow']
 class Board:
 
     def __init__(self, size):
-        self.dungeon = []
         self.size = size
         self.grid = [["" for _ in range(size)] for _ in range(size)]
         self.map = [["" for _ in range(size)] for _ in range(size)]
@@ -81,8 +80,9 @@ class Board:
                 return False
                 
         
-    def send_to_dungeon(self,ghost):
-        self.dungeon.append(ghost)
+    def send_to_dungeon(self,ghost,curr_player):
+        curr_player.add_ghost_to_dungeon(ghost)
+        
         
     def move_to_mirror(self, row, col, move):
         dir = move[:-7]
@@ -118,37 +118,37 @@ class Board:
         
             
         
-    def move_ghost(self, row, col, move):
+    def move_ghost(self, row, col, move, curr_player):
         
         ghost = self.remove_ghost(row, col)
         
         if(move == 'up'):
             if(self.fight(ghost, row-1, col)):
-                self.send_to_dungeon(self.map[row-1][col])
+                self.send_to_dungeon(self.map[row-1][col], curr_player)
                 self.add_ghost(ghost, row-1, col)
             else:
-                self.send_to_dungeon(ghost)
+                self.send_to_dungeon(ghost,curr_player)
             
         elif(move == 'down'):
             if(self.fight(ghost, row+1, col)):
-                self.send_to_dungeon(self.map[row+1][col])
+                self.send_to_dungeon(self.map[row+1][col], curr_player)
                 self.add_ghost(ghost, row+1, col)
             else:
-                self.send_to_dungeon(ghost)
+                self.send_to_dungeon(ghost,curr_player)
 
         elif(move == 'left'):
             if(self.fight(ghost, row, col-1)):
-                self.send_to_dungeon(self.map[row][col-1])
+                self.send_to_dungeon(self.map[row][col-1], curr_player)
                 self.add_ghost(ghost, row, col-1)
             else:
-                self.send_to_dungeon(ghost)
+                self.send_to_dungeon(ghost,curr_player)
 
         elif(move == 'right'):
             if(self.fight(ghost, row, col+1)):
-                self.send_to_dungeon(self.map[row][col+1])
+                self.send_to_dungeon(self.map[row][col+1], curr_player)
                 self.add_ghost(ghost, row, col+1)
             else:
-                self.send_to_dungeon(ghost)
+                self.send_to_dungeon(ghost,curr_player)
         
     def get_adjacent_chambers(self, row, col, size):
         adjacent_chambers = []

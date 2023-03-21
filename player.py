@@ -1,11 +1,11 @@
 class Player:
     def __init__(self, number):
         self.number = number
-        self.ghosts = []
+        self.dungeon = []
         self.ghostsReleased = []
 
-    def add_ghost(self, ghost):
-        self.ghosts.append(ghost)
+    def add_ghost_to_dungeon(self, ghost):
+        self.dungeon.append(ghost)
 
     def remove_ghost(self, ghost):
         self.ghosts.remove(ghost)
