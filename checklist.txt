@@ -1,0 +1,9 @@
+mirrors V
+portal_rotation
+portal sucktion
+checkwin
+pygame
+
+minimax
+
+QUARTA-FEIRA

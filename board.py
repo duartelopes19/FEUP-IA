@@ -23,8 +23,8 @@ class Board:
 
         #self.list[4][4] = 'Dungeon'
 
-        # portals -> (color, col, row, orientation)
-        self.portals = {('Red',ceil(size/2),0,'up'),('Blue',size,ceil(size/2),'right'),('Yellow',ceil(size/2),size,'down')}
+        # portals -> (color, orientation)
+        self.portals = {('Portal Red','up'),('Portal Blue','down'),('Portal Yellow','right')}
     
     def is_empty(self, row, col):
         return self.grid[row][col] is None
@@ -84,6 +84,39 @@ class Board:
     def send_to_dungeon(self,ghost):
         self.dungeon.append(ghost)
         
+    def move_to_mirror(self, row, col, move):
+        dir = move[:-7]
+
+        ghost = self.remove_ghost(row, col)
+
+        valid_mirrors = ['Mirror 1', 'Mirror 2', 'Mirror 3', 'Mirror 4']
+
+        if(dir=='up'):
+            valid_mirrors.remove(self.map[row-1][col])
+        elif(dir=='down'):
+            valid_mirrors.remove(self.map[row+1][col])
+        elif(dir=='left'):
+            valid_mirrors.remove(self.map[row][col-1])
+        elif(dir=='right'):
+            valid_mirrors.remove(self.map[row][col+1])
+        
+        
+        print("These are the valid mirrors: ")
+        for i in range(len(valid_mirrors)):
+            print(valid_mirrors[i])
+            
+
+        i = input("Enter the mirror you want to move to (num): ")
+        mirror = "Mirror " + str(i)
+
+        (mrow, mcol) = self.positions[mirror]
+
+        self.add_ghost(ghost, mrow, mcol)
+
+        return
+
+        
+            
         
     def move_ghost(self, row, col, move):
         
@@ -138,6 +171,11 @@ class Board:
                     mirror_chambers.append((row, col))
         return mirror_chambers
 
+    def restore_mirrors(self):
+        self.map[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror 3'
+        self.map[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror 4'
+        self.map[floor(self.size/4)][floor(self.size/4)] = 'Mirror 1'
+        self.map[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror 2'
 
     def print_board(self):
         """
@@ -176,25 +214,25 @@ class Board:
         self.grid[self.size - 1][floor(self.size/2)] = 'Portal Blue'
         self.grid[floor(self.size/2)][self.size-1] = 'Portal Yellow'
         
-        self.grid[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror'
-        self.grid[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
-        self.grid[floor(self.size/4)][floor(self.size/4)] = 'Mirror'
-        self.grid[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
+        self.grid[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror 3'
+        self.grid[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror 4'
+        self.grid[floor(self.size/4)][floor(self.size/4)] = 'Mirror 1'
+        self.grid[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror 2'
 
         self.map[0][floor(self.size/2)] = 'Portal Red'
         self.map[self.size - 1][floor(self.size/2)] = 'Portal Blue'
         self.map[floor(self.size/2)][self.size-1] = 'Portal Yellow'
         
-        self.map[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror'
-        self.map[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
-        self.map[floor(self.size/4)][floor(self.size/4)] = 'Mirror'
-        self.map[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
+        self.map[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror 3'
+        self.map[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror 4'
+        self.map[floor(self.size/4)][floor(self.size/4)] = 'Mirror 1'
+        self.map[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror 2'
 
         self.positions = {}
         for row in range(self.size):
             for col in range(self.size):
                 value = self.grid[row][col]
-                if value in ('Portal Red', 'Portal Blue', 'Portal Yellow', 'Mirror'):
+                if value in ('Portal Red', 'Portal Blue', 'Portal Yellow', 'Mirror 1', 'Mirror 2', 'Mirror 3', 'Mirror 4'):
                     self.positions[value] = (row, col)
     
 

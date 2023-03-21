@@ -16,31 +16,41 @@ class Game:
         self.players = [Player(1),Player(2)]
         self.curr_player = self.players[0]
         self.size = int(input("board size?"))
-        self.board = Board(self.size)    
+        self.board = Board(self.size)
+        self.restore_mirror = False
 
-        
+    
     def valid_moves(self, from_row, from_col, ghost):
         
         valid_moves= []
 
+
         #UP
         if(from_row - 1 >= 0):
-            if(str(self.board.map[from_row-1][from_col])[:6]!='Portal' and ghost.color!=self.board.map[from_row-1][from_col].color):
+            if(str(self.board.map[from_row-1][from_col])[:6]=='Mirror'):
+                valid_moves.append('up mirror')
+            elif(str(self.board.map[from_row-1][from_col])=="" or (str(self.board.map[from_row-1][from_col])[:6]!='Portal' and ghost.color!=self.board.map[from_row-1][from_col].color)):
                 valid_moves.append('up')
 
         #DOWN
         if(from_row + 1 < self.size):
-            if(str(self.board.map[from_row+1][from_col])[:6]!='Portal' and ghost.color!=self.board.map[from_row+1][from_col].color):
+            if(str(self.board.map[from_row+1][from_col])[:6]=='Mirror'):
+                valid_moves.append('down mirror') 
+            elif(str(self.board.map[from_row-1][from_col])=="" or (str(self.board.map[from_row+1][from_col])[:6]!='Portal' and ghost.color!=self.board.map[from_row+1][from_col].color)):
                 valid_moves.append('down')
         
         #LEFT
         if(from_col - 1 >= 0):
-            if(str(self.board.map[from_row][from_col-1])[:6]!='Portal' and ghost.color!=self.board.map[from_row][from_col-1].color):
+            if(str(self.board.map[from_row][from_col-1])[:6]=='Mirror'):
+                valid_moves.append('left mirror')
+            elif(str(self.board.map[from_row][from_col-1])=="" or (str(self.board.map[from_row][from_col-1])[:6]!='Portal' and ghost.color!=self.board.map[from_row][from_col-1].color)):
                 valid_moves.append('left')
             
         #RIGHT
         if(from_col + 1 < self.size):
-            if(str(self.board.map[from_row][from_col+1])[:6]!='Portal' and ghost.color!=self.board.map[from_row][from_col+1].color):
+            if(str(self.board.map[from_row][from_col+1])[:6]=='Mirror'):
+                valid_moves.append('right mirror')
+            elif(str(self.board.map[from_row-1][from_col])=="" or (str(self.board.map[from_row][from_col+1])[:6]!='Portal' and ghost.color!=self.board.map[from_row][from_col+1].color)):
                 valid_moves.append('right')
         
         return valid_moves
@@ -84,7 +94,12 @@ while(True):
             print("That move is invalid, try again!")
             continue
 
-        game.board.move_ghost(from_row ,from_col,move)    
+        if(move[-6:] == 'mirror'):
+            game.board.move_to_mirror(from_row, from_col, move)
+            game.restore_mirror = True
+            continue
+        else:
+            game.board.move_ghost(from_row ,from_col,move)    
 
         for i in range(len(valid_moves)):
             print(valid_moves[i])
@@ -93,6 +108,10 @@ while(True):
         for i in range(len(game.board.dungeon)):
             print(game.board.dungeon[i], end=" ")
         print('\n')
+
+        if(game.restore_mirror):
+            game.board.restore_mirrors()
+            game.restore_mirror = False
         
         game.change_player()
 
