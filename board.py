@@ -13,15 +13,15 @@ COLORS = ['Red', 'Blue', 'Yellow']
 class Board:
 
     def __init__(self, size):
+        self.dungeon = []
         self.size = size
         self.grid = [["" for _ in range(size)] for _ in range(size)]
-        self.ghosts = [["" for _ in range(size)] for _ in range(size)]
+        self.map = [["" for _ in range(size)] for _ in range(size)]
         self.populate()
         #self.players = [Player(1), Player(2)]
         #self.give_ghosts()
 
         #self.list[4][4] = 'Dungeon'
-        self.dungeon = []
 
         # portals -> (color, col, row, orientation)
         self.portals = {('Red',ceil(size/2),0,'up'),('Blue',size,ceil(size/2),'right'),('Yellow',ceil(size/2),size,'down')}
@@ -45,17 +45,78 @@ class Board:
     def add_ghost(self, ghost, row, col):
         ghost.row = row
         ghost.col = col
-        self.grid[row][col] = ghost
+        self.map[row][col] = ghost
 
     def remove_ghost(self, row, col):
-        ghost = self.grid[row][col]
-        self.grid[row][col] = None
+        ghost = self.map[row][col]
+        self.map[row][col] = ""
         return ghost
-    
-    def move_ghost(self, row1, col1, row2, col2):
-        ghost = self.remove_ghost(row1, col1)
-        self.add_ghost(ghost, row2, col2)
 
+    def fight(self, ghost, row, col):
+
+        '''Red ghosts beat blue ones.
+        Blue ghosts beat yellow ones
+        Yellow ghosts beat red ones'''
+
+        color = ghost.color        
+        ghost2 = self.map[row][col]
+        color2 = ghost2.color
+
+        if(color=='Red'):
+            if(color2 == 'Blue'):
+                return True
+            else:
+                return False
+            
+        elif(color == 'Blue'):
+            if(color2 == 'Yellow'):
+                return True
+            else:
+                return False
+        
+        elif(color == 'Yellow'):
+            if(color2=='Red'):
+                return True
+            else:
+                return False
+                
+        
+    def send_to_dungeon(self,ghost):
+        self.dungeon.append(ghost)
+        
+        
+    def move_ghost(self, row, col, move):
+        
+        ghost = self.remove_ghost(row, col)
+        
+        if(move == 'up'):
+            if(self.fight(ghost, row-1, col)):
+                self.send_to_dungeon(self.map[row-1][col])
+                self.add_ghost(ghost, row-1, col)
+            else:
+                self.send_to_dungeon(ghost)
+            
+        elif(move == 'down'):
+            if(self.fight(ghost, row+1, col)):
+                self.send_to_dungeon(self.map[row+1][col])
+                self.add_ghost(ghost, row+1, col)
+            else:
+                self.send_to_dungeon(ghost)
+
+        elif(move == 'left'):
+            if(self.fight(ghost, row, col-1)):
+                self.send_to_dungeon(self.map[row][col-1])
+                self.add_ghost(ghost, row, col-1)
+            else:
+                self.send_to_dungeon(ghost)
+
+        elif(move == 'right'):
+            if(self.fight(ghost, row, col+1)):
+                self.send_to_dungeon(self.map[row][col+1])
+                self.add_ghost(ghost, row, col+1)
+            else:
+                self.send_to_dungeon(ghost)
+        
     def get_adjacent_chambers(self, row, col, size):
         adjacent_chambers = []
         if row > 0:
@@ -86,7 +147,7 @@ class Board:
         for row in range(self.size):
             print(str(row+1)+' |', end='')
             for col in range(self.size):
-                print(' ' + str(self.ghosts[row][col]) + ' |', end='')
+                print(' ' + str(self.map[row][col]) + ' |', end='')
             print('')
             print('-----' * self.size*2)
         for num in range(self.size):
@@ -120,14 +181,14 @@ class Board:
         self.grid[floor(self.size/4)][floor(self.size/4)] = 'Mirror'
         self.grid[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
 
-        self.ghosts[0][floor(self.size/2)] = 'Portal Red'
-        self.ghosts[self.size - 1][floor(self.size/2)] = 'Portal Blue'
-        self.ghosts[floor(self.size/2)][self.size-1] = 'Portal Yellow'
+        self.map[0][floor(self.size/2)] = 'Portal Red'
+        self.map[self.size - 1][floor(self.size/2)] = 'Portal Blue'
+        self.map[floor(self.size/2)][self.size-1] = 'Portal Yellow'
         
-        self.ghosts[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror'
-        self.ghosts[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
-        self.ghosts[floor(self.size/4)][floor(self.size/4)] = 'Mirror'
-        self.ghosts[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
+        self.map[self.size - ceil(self.size/4)][floor(self.size/4)] = 'Mirror'
+        self.map[self.size - ceil(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
+        self.map[floor(self.size/4)][floor(self.size/4)] = 'Mirror'
+        self.map[floor(self.size/4)][floor(self.size/2)+floor(self.size/4)] = 'Mirror'
 
         self.positions = {}
         for row in range(self.size):
@@ -142,11 +203,12 @@ class Board:
                 for _ in range(3):
                     row = random.randint(0, self.size-1)
                     col = random.randint(0, self.size-1)
-                    while (self.ghosts[row][col] != ""):
+                    while (self.map[row][col] != ""):
                         row = random.randint(0, self.size-1)
                         col = random.randint(0, self.size-1)
                     pos = Position(row, col)
-                    self.ghosts[row][col] = Ghost(color, player, pos)
+                    ghost2 = Ghost(color, player, pos)
+                    self.map[row][col] = ghost2
                     self.grid[row][col]= color
                                             
         
@@ -160,10 +222,8 @@ class Board:
                 
  """
 
-board = Board(5)
-board.print_board()
 
-# Initialize Pygame
+""" # Initialize Pygame
 pygame.init()
 
 # Set up the game window
@@ -235,7 +295,7 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-            quit()
+            quit() """
 
 
 

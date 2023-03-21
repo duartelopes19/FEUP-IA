@@ -16,3 +16,7 @@ class Ghost:
     
     def __str__(self):
         return f"{self.color} {self.symbol}"
+
+    def get_ghost(self, row, col):
+        
+        return 
