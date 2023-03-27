@@ -1,10 +1,31 @@
 mirrors [V´ mais ou menos]
-portal_rotation
 portal sucktion
-checkwin [V]
-release from dungeon
-pygame
 
-minimax
+minimax/monte carlo
 
 QUARTA-FEIRA
+    10 slides
+    Apresentação -> Quinta de manhã -> Online/Presencial
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    pygame

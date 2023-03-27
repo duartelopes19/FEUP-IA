@@ -17,13 +17,16 @@ class Board:
         self.grid = [["" for _ in range(size)] for _ in range(size)]
         self.map = [["" for _ in range(size)] for _ in range(size)]
         self.populate()
+        self.dungeon = []
+        self.released = []
         #self.players = [Player(1), Player(2)]
         #self.give_ghosts()
 
         #self.list[4][4] = 'Dungeon'
 
         # portals -> (color, orientation)
-        self.portals = {('Portal Red','up'),('Portal Blue','down'),('Portal Yellow','right')}
+        self.portals = [['Red','up', 0, floor(self.size/2)],['Blue','down', self.size - 1, floor(self.size/2)],['Yellow','right', floor(self.size/2), self.size-1]]
+
     
     def is_empty(self, row, col):
         return self.grid[row][col] is None
@@ -39,7 +42,19 @@ class Board:
 
 
     '''
+    def switch_portals(self, ghost):
+        for i in range(3):
+            if(ghost.color == self.portals[i][0]):
+                if(self.portals[i][1] == 'up'):
+                    self.portals[i][1] = 'right'
+                elif(self.portals[i][1] == 'right'):
+                    self.portals[i][1] = 'down'
+                elif(self.portals[i][1] == 'down'):
+                    self.portals[i][1] = 'left'
+                elif(self.portals[i][1] == 'left'):
+                    self.portals[i][1] = 'up'
 
+    
 
     def add_ghost(self, ghost, row, col):
         ghost.row = row
@@ -48,7 +63,7 @@ class Board:
 
     def remove_ghost(self, row, col):
         ghost = self.map[row][col]
-        self.map[row][col] = ""
+        self.map[row][col] = self.grid[row][col]
         return ghost
 
     def fight(self, ghost, row, col):
@@ -56,33 +71,58 @@ class Board:
         '''Red ghosts beat blue ones.
         Blue ghosts beat yellow ones
         Yellow ghosts beat red ones'''
-
-        color = ghost.color        
+    
+        color = ghost.color
+        if(self.map[row][col]==self.grid[row][col]):
+            return True
+        
         ghost2 = self.map[row][col]
         color2 = ghost2.color
 
         if(color=='Red'):
             if(color2 == 'Blue'):
+                self.switch_portals(ghost2)
                 return True
             else:
+                self.switch_portals(ghost)
                 return False
             
         elif(color == 'Blue'):
             if(color2 == 'Yellow'):
+                self.switch_portals(ghost2)
                 return True
             else:
+                self.switch_portals(ghost)
                 return False
         
         elif(color == 'Yellow'):
             if(color2=='Red'):
+                self.switch_portals(ghost2)
                 return True
             else:
+                self.switch_portals(ghost)
                 return False
                 
         
-    def send_to_dungeon(self,ghost,curr_player):
-        curr_player.add_ghost_to_dungeon(ghost)
+    def send_to_dungeon(self,ghost):
+        self.dungeon.append(ghost)
         
+
+    def release_dungeon(self,ghost,curr_player):
+
+
+        for row in range(self.size):
+            for col in range(self.size):
+                value = self.map[row][col]
+                if (ghost.color == str(value)):
+                    self.dungeon.remove(ghost)
+                    self.add_ghost(ghost, row, col)
+                    return True
+
+        print("There are no available places! \n")
+        return False
+        ##curr_player.place_ghost_in_board(ghost)
+            
         
     def move_to_mirror(self, row, col, move):
         dir = move[:-7]
@@ -116,39 +156,67 @@ class Board:
         return
 
         
+    def portal_suction(self):
+
+        for i in range(3):
+            if(self.portals[i][1]=='up' and self.portals[i][0] != 'Red'):
+                if(self.map[self.portals[i][2]-1][self.portals[i][3]].color==self.portals[i][0]):
+                    ghost = self.map[self.portals[i][2]-1][self.portals[i][3]]
+                    self.remove_ghost(self.portals[i][2]-1, self.portals[i][3])
+                    self.released.append(ghost)
+
+
+            elif(self.portals[i][1]=='right' and self.portals[i][0] != 'Yellow'):                
+                if(self.map[self.portals[i][2]-1][self.portals[i][3]].color==self.portals[i][0]):
+                    ghost = self.map[self.portals[i][2]][self.portals[i][3]+1]
+                    self.remove_ghost(self.portals[i][2], self.portals[i][3]+1)
+                    self.released.append(ghost)
+
+
+            elif(self.portals[i][1]=='down' and self.portals[i][0] != 'Blue'):
+                if(self.map[self.portals[i][2]+1][self.portals[i][3]].color==self.portals[i][0]):
+                    ghost = self.map[self.portals[i][2]+1][self.portals[i][3]]
+                    self.remove_ghost(self.portals[i][2]+1, self.portals[i][3])
+                    self.released.append(ghost)
+
+            elif(self.portals[i][1]=='left'):
+                if(self.map[self.portals[i][2]][self.portals[i][3]-1].color==self.portals[i][0]):
+                    ghost = self.map[self.portals[i][2]][self.portals[i][3]-1]
+                    self.remove_ghost(self.portals[i][2], self.portals[i][3]-1)
+                    self.released.append(ghost)
             
         
-    def move_ghost(self, row, col, move, curr_player):
+    def move_ghost(self, row, col, move):
         
         ghost = self.remove_ghost(row, col)
         
         if(move == 'up'):
             if(self.fight(ghost, row-1, col)):
-                self.send_to_dungeon(self.map[row-1][col], curr_player)
+                self.send_to_dungeon(self.map[row-1][col])
                 self.add_ghost(ghost, row-1, col)
             else:
-                self.send_to_dungeon(ghost,curr_player)
+                self.send_to_dungeon(ghost)
             
         elif(move == 'down'):
             if(self.fight(ghost, row+1, col)):
-                self.send_to_dungeon(self.map[row+1][col], curr_player)
+                self.send_to_dungeon(self.map[row+1][col])
                 self.add_ghost(ghost, row+1, col)
             else:
-                self.send_to_dungeon(ghost,curr_player)
+                self.send_to_dungeon(ghost)
 
         elif(move == 'left'):
             if(self.fight(ghost, row, col-1)):
-                self.send_to_dungeon(self.map[row][col-1], curr_player)
+                self.send_to_dungeon(self.map[row][col-1])
                 self.add_ghost(ghost, row, col-1)
             else:
-                self.send_to_dungeon(ghost,curr_player)
+                self.send_to_dungeon(ghost)
 
         elif(move == 'right'):
             if(self.fight(ghost, row, col+1)):
-                self.send_to_dungeon(self.map[row][col+1], curr_player)
+                self.send_to_dungeon(self.map[row][col+1])
                 self.add_ghost(ghost, row, col+1)
             else:
-                self.send_to_dungeon(ghost,curr_player)
+                self.send_to_dungeon(ghost)
         
     def get_adjacent_chambers(self, row, col, size):
         adjacent_chambers = []
@@ -193,6 +261,10 @@ class Board:
             else:
                 print(str(num+1)+' | ', end='')
 
+        print("\n")
+        for i in range(3):
+            print('Portal ' + self.portals[i][0] + ' : ' + self.portals[i][1])
+    
         """ print('----' * self.size)
         for row in range(self.size):
             print(str(row+1)+' |', end='')

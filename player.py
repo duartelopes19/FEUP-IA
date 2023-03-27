@@ -7,6 +7,9 @@ class Player:
     def add_ghost_to_dungeon(self, ghost):
         self.dungeon.append(ghost)
 
+    def remove_ghost_from_dungeon(self,ghost):
+        self.dungeon.remove(str(ghost))
+
     def remove_ghost(self, ghost):
         self.ghosts.remove(ghost)
 
