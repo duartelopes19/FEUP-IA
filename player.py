@@ -3,6 +3,7 @@ class Player:
         self.number = number
         self.dungeon = []
         self.ghostsReleased = []
+        self.player_score = 0
 
     def add_ghost_to_dungeon(self, ghost):
         self.dungeon.append(ghost)

@@ -3,9 +3,8 @@ portal sucktion
 
 minimax/monte carlo
 
-QUARTA-FEIRA
+TERÇA-FEIRA
     10 slides
-    Apresentação -> Quinta de manhã -> Online/Presencial
 
 
 

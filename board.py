@@ -160,30 +160,34 @@ class Board:
 
         for i in range(3):
             if(self.portals[i][1]=='up' and self.portals[i][0] != 'Red'):
-                if(self.map[self.portals[i][2]-1][self.portals[i][3]].color==self.portals[i][0]):
-                    ghost = self.map[self.portals[i][2]-1][self.portals[i][3]]
-                    self.remove_ghost(self.portals[i][2]-1, self.portals[i][3])
-                    self.released.append(ghost)
+                if(self.map[self.portals[i][2]-1][self.portals[i][3]]!='Blue' and self.map[self.portals[i][2]-1][self.portals[i][3]]!='Yellow' and self.map[self.portals[i][2]-1][self.portals[i][3]]!='Red'):
+                    if(self.map[self.portals[i][2]-1][self.portals[i][3]].color==self.portals[i][0]):
+                        ghost = self.map[self.portals[i][2]-1][self.portals[i][3]]
+                        self.remove_ghost(self.portals[i][2]-1, self.portals[i][3])
+                        self.released.append(ghost)
 
 
             elif(self.portals[i][1]=='right' and self.portals[i][0] != 'Yellow'):                
-                if(self.map[self.portals[i][2]-1][self.portals[i][3]].color==self.portals[i][0]):
-                    ghost = self.map[self.portals[i][2]][self.portals[i][3]+1]
-                    self.remove_ghost(self.portals[i][2], self.portals[i][3]+1)
-                    self.released.append(ghost)
+                if(self.map[self.portals[i][2]][self.portals[i][3]+1]!='Blue' and self.map[self.portals[i][2]][self.portals[i][3]+1]!='Yellow' and self.map[self.portals[i][2]][self.portals[i][3]+1]!='Red'):
+                    if(self.map[self.portals[i][2]][self.portals[i][3]+1].color==self.portals[i][0]):
+                        ghost = self.map[self.portals[i][2]][self.portals[i][3]+1]
+                        self.remove_ghost(self.portals[i][2], self.portals[i][3]+1)
+                        self.released.append(ghost)
 
 
             elif(self.portals[i][1]=='down' and self.portals[i][0] != 'Blue'):
-                if(self.map[self.portals[i][2]+1][self.portals[i][3]].color==self.portals[i][0]):
-                    ghost = self.map[self.portals[i][2]+1][self.portals[i][3]]
-                    self.remove_ghost(self.portals[i][2]+1, self.portals[i][3])
-                    self.released.append(ghost)
+                if(self.map[self.portals[i][2]+1][self.portals[i][3]] != 'Red' and self.map[self.portals[i][2]+1][self.portals[i][3]]!='Yellow' and self.map[self.portals[i][2]+1][self.portals[i][3]]!='Blue'):
+                    if (self.map[self.portals[i][2]+1][self.portals[i][3]].color==self.portals[i][0]):
+                        ghost = self.map[self.portals[i][2]+1][self.portals[i][3]]
+                        self.remove_ghost(self.portals[i][2]+1, self.portals[i][3])
+                        self.released.append(ghost)
 
             elif(self.portals[i][1]=='left'):
-                if(self.map[self.portals[i][2]][self.portals[i][3]-1].color==self.portals[i][0]):
-                    ghost = self.map[self.portals[i][2]][self.portals[i][3]-1]
-                    self.remove_ghost(self.portals[i][2], self.portals[i][3]-1)
-                    self.released.append(ghost)
+                if(self.map[self.portals[i][2]][self.portals[i][3]-1]!='Blue' and self.map[self.portals[i][2]][self.portals[i][3]-1]!='Red' and self.map[self.portals[i][2]][self.portals[i][3]-1]!='Yellow'):
+                    if (self.map[self.portals[i][2]][self.portals[i][3]-1].color==self.portals[i][0]):
+                        ghost = self.map[self.portals[i][2]][self.portals[i][3]-1]
+                        self.remove_ghost(self.portals[i][2], self.portals[i][3]-1)
+                        self.released.append(ghost)
             
         
     def move_ghost(self, row, col, move):
