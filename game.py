@@ -71,8 +71,6 @@ class Game:
         
         valid_moves= []
 
-        print("Ghost entered valid_moves: ")
-        print(type(ghost))
         if(type(ghost)==str):
             return
 
@@ -148,8 +146,6 @@ class Game:
                 row = self.board.map.index(row1)
                 col = row1.index(ghost)
 
-                print("Ghost entering valid_moves: ")
-                print(type(ghost))
                 moves = self.valid_moves(row, col, ghost)
 
                 for move in moves:
@@ -187,14 +183,14 @@ class Game:
                     if is_max_player:
                         if score > best_score:
                             best_score = score
-                            best_move = (ghost, move)
+                            best_move = [row, col, move]
                             alpha = max(alpha, best_score)
                         if beta <= alpha:
                             break
                     else:
                         if score < best_score:
                             best_score = score
-                            best_move = (ghost, move)
+                            best_move = [row, col, move]
                             beta = min(beta, best_score)
                         if beta <= alpha:
                             break
@@ -204,7 +200,6 @@ class Game:
 
 
 
-        
 
 
 gameMode = -1
@@ -458,9 +453,62 @@ while (True):
                     continue
 
             else:
+                temp_board = [["" for _ in range(game.board.size)] for _ in range(game.board.size)]
+                for row in game.board.map:
+                    for ghost in row:
+                        temp_board[game.board.map.index(row)][row.index(ghost)] = ghost
+
+                
+
                 evaluation, bestMove = game.minimax(3, True, float('+inf'), float('-inf'))
+
+                game.board.map = temp_board
+                
                 print("Best move = {}".format(bestMove))
-                # game.board.move_ghost(bestMove[0], bestMove[1], bestMove[2],bestMove[3])
+
+
+                game.board.move_ghost(bestMove[0],bestMove[1],bestMove[2])
+
+                print("Dungeon: ")
+                print("Player 1: ", end="")
+                for i in range(len(game.board.dungeon)):
+                    if(str(game.board.dungeon[i])[-1]=='1'):
+                        print(game.board.dungeon[i], end=" ")
+                print('\n')
+                print("Player 2: ", end="")
+                for i in range(len(game.board.dungeon)):
+                    if(str(game.board.dungeon[i])[-1]=='2'):
+                        print(game.board.dungeon[i], end=" ")
+                print('\n')
+
+                if(game.restore_mirror):
+                    game.board.restore_mirrors()
+                    game.restore_mirror = False
+                
+                game.board.portal_suction()
+                for i in range(len(game.board.released)):
+                    if(str(game.board.released[i])[-1]=='2'):
+                        game.players[1].ghostsReleased.append(game.board.released[i])
+                    elif(str(game.board.released[i])[-1]=='1'):
+                        game.players[0].ghostsReleased.append(game.board.released[i])
+                        
+                game.board.released.clear()  
+                
+                print('Player 1 released ghosts:', end = '\n')
+                if (len(game.players[0].ghostsReleased)>0):
+                    for i in range(len(game.players[0].ghostsReleased)):
+                        print(game.players[0].ghostsReleased[i], end='\n')
+
+                print('Player 2 released ghosts:', end = '\n')
+                if(len(game.players[1].ghostsReleased)>0):
+                    for i in range(len(game.players[1].ghostsReleased)):
+                        print(game.players[1].ghostsReleased[i], end='\n')
+
+
+                game.players[0].player_score = len(game.players[0].ghostsReleased)
+                game.players[1].player_score = len(game.players[1].ghostsReleased)
+
+
                 game.change_player()
 
             

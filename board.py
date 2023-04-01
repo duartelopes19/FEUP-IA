@@ -71,6 +71,9 @@ class Board:
         '''Red ghosts beat blue ones.
         Blue ghosts beat yellow ones
         Yellow ghosts beat red ones'''
+
+        if(type(ghost)==str):
+            return
     
         color = ghost.color
         if(self.map[row][col]==self.grid[row][col]):
