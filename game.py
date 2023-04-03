@@ -49,11 +49,15 @@ class Game:
     def check_win(self):
         if(self.mode=='easy'):
             if(len(self.players[0].ghostsReleased)==3):
+                self.board.print_board()   
                 print('Player 1 Wins')
+                print("\n")
                 return True
 
             elif(len(self.players[1].ghostsReleased)==3):
+                self.board.print_board()   
                 print('Player 2 Wins')
+                print("\n")
                 return True
             
             else:
@@ -145,8 +149,8 @@ class Game:
         
         opponent-=1
         player-= 1
-        print(len(self.players[player].ghostsReleased))
-        print(len(self.players[opponent].ghostsReleased))
+        #print(len(self.players[player].ghostsReleased))
+        #print(len(self.players[opponent].ghostsReleased))
         if(len(self.players[player].ghostsReleased)>len(self.players[opponent].ghostsReleased)):
             score+= 150
         
@@ -580,7 +584,8 @@ while (True):
                 
                 print("Best move = {}".format(bestMove))
 
-
+                if(bestMove is None):
+                    continue
 
                 game.board.move_ghost(bestMove[0],bestMove[1],bestMove[2])
 
@@ -645,7 +650,8 @@ while (True):
                 evaluation, bestMove = game.minimax(3, True, float('+inf'), float('-inf'),2)
                 
                 print("Best move = {}".format(bestMove))
-
+                if(bestMove is None):
+                    continue
 
 
                 game.board.move_ghost(bestMove[0],bestMove[1],bestMove[2])
