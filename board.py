@@ -115,7 +115,7 @@ class Board:
         self.dungeon.append(ghost)
         
 
-    def release_dungeon(self,ghost,curr_player):
+    def release_dungeon(self,ghost):
 
 
         for row in range(self.size):
