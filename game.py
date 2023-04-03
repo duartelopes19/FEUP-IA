@@ -39,6 +39,7 @@ class Game:
         self.curr_player = self.players[0]
         self.size = int(input("board size? "))
         self.board = Board(self.size)
+        self.temp_board = Board(self.size)
         self.restore_mirror = False
         self.mode = input("difficulty? (easy/normal) ")
 
@@ -135,7 +136,7 @@ class Game:
         best_score = float('-inf') if is_max_player else float('inf')
         best_move = None
 
-        for row1 in self.board.map:
+        for row1 in self.temp_board.map:
             for ghost in row1:
 
                 if (str(ghost)[-1]!='2' or str(ghost)=='Mirror 2'):
@@ -143,7 +144,7 @@ class Game:
 
                 
                 #row, col = ghost.position
-                row = self.board.map.index(row1)
+                row = self.temp_board.map.index(row1)
                 col = row1.index(ghost)
 
                 moves = self.valid_moves(row, col, ghost)
@@ -156,13 +157,13 @@ class Game:
 
                     # make move
                     if move == 'up':
-                        self.board.move_ghost(row, col, move)
+                        self.temp_board.move_ghost(row, col, move)
                     elif move == 'down':
-                        self.board.move_ghost(row, col, move)
+                        self.temp_board.move_ghost(row, col, move)
                     elif move == 'left':
-                        self.board.move_ghost(row, col, move)
+                        self.temp_board.move_ghost(row, col, move)
                     elif move == 'right':
-                        self.board.move_ghost(row, col, move)
+                        self.temp_board.move_ghost(row, col, move)
                     
 
                     # recurse
@@ -172,13 +173,13 @@ class Game:
 
                     # undo move
                     if move == 'up':
-                        self.board.move_ghost(row, col, 'down')
+                        self.temp_board.move_ghost(row, col, 'down')
                     elif move == 'down':
-                        self.board.move_ghost(row, col, 'up')
+                        self.temp_board.move_ghost(row, col, 'up')
                     elif move == 'left':
-                        self.board.move_ghost(row, col, 'right')
+                        self.temp_board.move_ghost(row, col, 'right')
                     elif move == 'right':
-                        self.board.move_ghost(row, col, 'left')
+                        self.temp_board.move_ghost(row, col, 'left')
 
                     if is_max_player:
                         if score > best_score:
@@ -453,18 +454,17 @@ while (True):
                     continue
 
             else:
-                temp_board = [["" for _ in range(game.board.size)] for _ in range(game.board.size)]
                 for row in game.board.map:
                     for ghost in row:
-                        temp_board[game.board.map.index(row)][row.index(ghost)] = ghost
+                        game.temp_board.map[game.board.map.index(row)][row.index(ghost)] = ghost
 
                 
-
                 evaluation, bestMove = game.minimax(3, True, float('+inf'), float('-inf'))
-
-                game.board.map = temp_board
                 
                 print("Best move = {}".format(bestMove))
+
+                if(bestMove is None):
+                    continue
 
 
                 game.board.move_ghost(bestMove[0],bestMove[1],bestMove[2])

@@ -80,6 +80,10 @@ class Board:
             return True
         
         ghost2 = self.map[row][col]
+
+        if(type(ghost2)==str):
+            return
+
         color2 = ghost2.color
 
         if(color=='Red'):
