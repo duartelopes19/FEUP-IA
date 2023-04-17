@@ -3,6 +3,7 @@ from ghost import *
 from position import *
 from board import *
 import sys
+import random
 
 
 
@@ -10,6 +11,7 @@ GHOST_TYPE= ['first','second']
 GHOST_COLOR = ['Red', 'Blue', 'Yellow']
 
 ACTIONS = ['Move', 'Fight', 'Release']
+minimax_moves = []
 
 """ 
 if __name__ == '__main__':
@@ -37,7 +39,7 @@ class Game:
     def __init__(self):
         self.players = [Player(1),Player(2)]
         self.curr_player = self.players[0]
-        self.size = int(input("board size? "))
+        self.size = 5
         self.board = Board(self.size)
         self.temp_board = Board(self.size)
         self.restore_mirror = False
@@ -47,11 +49,15 @@ class Game:
     def check_win(self):
         if(self.mode=='easy'):
             if(len(self.players[0].ghostsReleased)==3):
+                self.board.print_board()   
                 print('Player 1 Wins')
+                print("\n")
                 return True
 
             elif(len(self.players[1].ghostsReleased)==3):
+                self.board.print_board()   
                 print('Player 2 Wins')
+                print("\n")
                 return True
             
             else:
@@ -125,9 +131,36 @@ class Game:
         else:
             self.curr_player = self.players[0]
 
+    
+    def evaluate(self,board,player):
+        score = 0
+        opponent = 1 if player == 2 else 2
 
-    def minimax(self, depth, is_max_player, alpha, beta):
+        # Count the number of ghosts remaining for the player and opponent
+        player_ghosts = 0
+        opponent_ghosts = 0
+        for row in board:
+            for cell in row:
+                if cell != 0 and str(cell)[-1] == str(player):
+                    player_ghosts += 1
+                elif cell != 0 and str(cell)[-1] == str(opponent):
+                    opponent_ghosts += 1
+        score += (player_ghosts - opponent_ghosts) * 10
+        
+        opponent-=1
+        player-= 1
+        #print(len(self.players[player].ghostsReleased))
+        #print(len(self.players[opponent].ghostsReleased))
+        if(len(self.players[player].ghostsReleased)>len(self.players[opponent].ghostsReleased)):
+            score+= 150
+        
+
+        return score
+    
+
+    def minimax(self, depth, is_max_player, alpha, beta,minimax_player):
         if depth == 10 or self.check_win():
+            score = self.evaluate(self.temp_board.map, minimax_player)
             if is_max_player:
                 return -1, None
             else:
@@ -138,19 +171,22 @@ class Game:
 
         for row1 in self.temp_board.map:
             for ghost in row1:
-
-                if (str(ghost)[-1]!='2' or str(ghost)=='Mirror 2'):
-                    continue
-
+                if(minimax_player==1):
+                    if (str(ghost)[-1]!= '1' or str(ghost)[:6]=='Mirror' or str(ghost)[:6]=='Portal'):
+                        continue
+                
+                if(minimax_player==2):
+                    if (str(ghost)[-1]!= '2' or str(ghost)[:6]=='Mirror' or str(ghost)[:6]=='Portal'):
+                        continue
                 
                 #row, col = ghost.position
                 row = self.temp_board.map.index(row1)
                 col = row1.index(ghost)
 
                 moves = self.valid_moves(row, col, ghost)
+                #print(row,col,moves)
 
                 for move in moves:
-                    score = 0
 
                     if move.endswith('mirror'):
                         continue
@@ -168,7 +204,8 @@ class Game:
 
                     # recurse
                     self.change_player()
-                    score, _ = self.minimax(depth + 1, not is_max_player, alpha, beta)
+                    
+                    score, _ = self.minimax(depth + 1, not is_max_player, alpha, beta,minimax_player)
                     self.change_player()
 
                     # undo move
@@ -181,6 +218,7 @@ class Game:
                     elif move == 'right':
                         self.temp_board.move_ghost(row, col, 'left')
 
+                    
                     if is_max_player:
                         if score > best_score:
                             best_score = score
@@ -246,7 +284,7 @@ while (True):
                             released = game.board.dungeon[i]
                             break
 
-                    if(game.board.release_dungeon(released,game.curr_player)):
+                    if(game.board.release_dungeon(released)):
                         game.change_player()
                     continue
 
@@ -368,7 +406,7 @@ while (True):
                                 released = game.board.dungeon[i]
                                 break
 
-                        if(game.board.release_dungeon(released,game.curr_player)):
+                        if(game.board.release_dungeon(released)):
                             game.change_player()
                         continue
 
@@ -454,17 +492,23 @@ while (True):
                     continue
 
             else:
+
+                """ for i in range(len(game.board.dungeon)):
+                    if(str(game.board.dungeon[i])[-1]=='2'):
+                        game.board.release_dungeon(game.board.dungeon[i])
+                        break """
+
                 for row in game.board.map:
                     for ghost in row:
                         game.temp_board.map[game.board.map.index(row)][row.index(ghost)] = ghost
 
                 
-                evaluation, bestMove = game.minimax(3, True, float('+inf'), float('-inf'))
+                evaluation, bestMove = game.minimax(9, True, float('+inf'), float('-inf'), 2)
                 
                 print("Best move = {}".format(bestMove))
 
                 if(bestMove is None):
-                    continue
+                    break
 
 
                 game.board.move_ghost(bestMove[0],bestMove[1],bestMove[2])
@@ -517,7 +561,144 @@ while (True):
         
 
 
+            
 
-
+    if (gameMode==3):
+        game = Game()
         
+        while(True):
+            game.board.print_board()  
+            if(game.curr_player==game.players[0]):
+                print('-----------Player 1-----------')
+                """ for i in range(len(game.board.dungeon)):
+                        if(str(game.board.dungeon[i])[-1]=='1'):
+                            game.board.release_dungeon(game.board.dungeon[i])
+                            break """
+
+                for row in game.board.map:
+                        for ghost in row:
+                            game.temp_board.map[game.board.map.index(row)][row.index(ghost)] = ghost
+
+                
+                evaluation, bestMove = game.minimax(3, True, float('+inf'), float('-inf'),1)
+                
+                print("Best move = {}".format(bestMove))
+
+                if(bestMove is None):
+                    continue
+
+                game.board.move_ghost(bestMove[0],bestMove[1],bestMove[2])
+
+                print("Dungeon: ")
+                print("Player 1: ", end="")
+                for i in range(len(game.board.dungeon)):
+                    if(str(game.board.dungeon[i])[-1]=='1'):
+                        print(game.board.dungeon[i], end=" ")
+                print('\n')
+                print("Player 2: ", end="")
+                for i in range(len(game.board.dungeon)):
+                    if(str(game.board.dungeon[i])[-1]=='2'):
+                        print(game.board.dungeon[i], end=" ")
+                print('\n')
+
+                if(game.restore_mirror):
+                    game.board.restore_mirrors()
+                    game.restore_mirror = False
+                
+                game.board.portal_suction()
+                for i in range(len(game.board.released)):
+                    if(str(game.board.released[i])[-1]=='2'):
+                        game.players[1].ghostsReleased.append(game.board.released[i])
+                    elif(str(game.board.released[i])[-1]=='1'):
+                        game.players[0].ghostsReleased.append(game.board.released[i])
+                        
+                game.board.released.clear()  
+                
+                print('Player 1 released ghosts:', end = '\n')
+                if (len(game.players[0].ghostsReleased)>0):
+                    for i in range(len(game.players[0].ghostsReleased)):
+                        print(game.players[0].ghostsReleased[i], end='\n')
+
+                print('Player 2 released ghosts:', end = '\n')
+                if(len(game.players[1].ghostsReleased)>0):
+                    for i in range(len(game.players[1].ghostsReleased)):
+                        print(game.players[1].ghostsReleased[i], end='\n')
+
+
+                game.players[0].player_score = len(game.players[0].ghostsReleased)
+                game.players[1].player_score = len(game.players[1].ghostsReleased)
+
+
+                game.change_player()
+
+            
+                if(game.check_win()==True):
+                    break
+       
+            else:
+                print('-----------Player 2-----------')
+                """ if(for i in range(len(game.board.dungeon)):
+                        if(str(game.board.dungeon[i])[-1]=='2'):
+                            game.board.release_dungeon(game.board.dungeon[i])
+                            break """
+
+                for row in game.board.map:
+                        for ghost in row:
+                            game.temp_board.map[game.board.map.index(row)][row.index(ghost)] = ghost
+
+                
+                evaluation, bestMove = game.minimax(3, True, float('+inf'), float('-inf'),2)
+                
+                print("Best move = {}".format(bestMove))
+                if(bestMove is None):
+                    continue
+
+
+                game.board.move_ghost(bestMove[0],bestMove[1],bestMove[2])
+
+                print("Dungeon: ")
+                print("Player 1: ", end="")
+                for i in range(len(game.board.dungeon)):
+                    if(str(game.board.dungeon[i])[-1]=='1'):
+                        print(game.board.dungeon[i], end=" ")
+                print('\n')
+                print("Player 2: ", end="")
+                for i in range(len(game.board.dungeon)):
+                    if(str(game.board.dungeon[i])[-1]=='2'):
+                        print(game.board.dungeon[i], end=" ")
+                print('\n')
+
+                if(game.restore_mirror):
+                    game.board.restore_mirrors()
+                    game.restore_mirror = False
+                
+                game.board.portal_suction()
+                for i in range(len(game.board.released)):
+                    if(str(game.board.released[i])[-1]=='2'):
+                        game.players[1].ghostsReleased.append(game.board.released[i])
+                    elif(str(game.board.released[i])[-1]=='1'):
+                        game.players[0].ghostsReleased.append(game.board.released[i])
+                        
+                game.board.released.clear()  
+                
+                print('Player 1 released ghosts:', end = '\n')
+                if (len(game.players[0].ghostsReleased)>0):
+                    for i in range(len(game.players[0].ghostsReleased)):
+                        print(game.players[0].ghostsReleased[i], end='\n')
+
+                print('Player 2 released ghosts:', end = '\n')
+                if(len(game.players[1].ghostsReleased)>0):
+                    for i in range(len(game.players[1].ghostsReleased)):
+                        print(game.players[1].ghostsReleased[i], end='\n')
+
+
+                game.players[0].player_score = len(game.players[0].ghostsReleased)
+                game.players[1].player_score = len(game.players[1].ghostsReleased)
+
+
+                game.change_player()
+
+            
+                if(game.check_win()==True):
+                    break
 
