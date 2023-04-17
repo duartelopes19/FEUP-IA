@@ -284,7 +284,7 @@ while (True):
                             released = game.board.dungeon[i]
                             break
 
-                    if(game.board.release_dungeon(released,game.curr_player)):
+                    if(game.board.release_dungeon(released)):
                         game.change_player()
                     continue
 
